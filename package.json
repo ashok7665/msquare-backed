@@ -15,6 +15,7 @@
     "morgan": "~1.9.1",
     "node-cron": "^3.0.0",
     "smartapi-javascript": "^1.0.14",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.4.1",
+    "mongoose":"6.2.8"
   }
 }
