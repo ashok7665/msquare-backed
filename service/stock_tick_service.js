@@ -77,7 +77,7 @@ const startTickWebsocket = async ()=>{
         console.log('websocet connection error end ---->')
     })
     webSocket.runScript(scriptsStr(scriptsList), "mw")
-    await makeOrder()
+
 
 }
 
