@@ -13,9 +13,9 @@ module.exports.fetcClient = ()=>{
 
 
 module.exports.emitData = (data)=>{
-    console.log('emitting')
+    //console.log('emitting')
     if(client){
-        console.log('sending...')
+       // console.log('sending...')
         var emited = client.send(JSON.stringify(data))
         console.log(emited)
     }
