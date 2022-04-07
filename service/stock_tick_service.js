@@ -116,7 +116,7 @@ async function checkTradeData(){
         const _id = stock['_id']
 
         if(buyPrice<=ltp && stock.buy_order['status'] == 'pending'){
-            console.log(`[${date}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
+            console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
             stock.buy_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
             await updateBuyStatus(_id,'order_executed')
@@ -127,14 +127,14 @@ async function checkTradeData(){
 
             if(ltp>= buyOrder['target']){
                 
-                console.log(`[${date}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${buyOrder['target']}] [${ltp}]`)
+                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${buyOrder['target']}] [${ltp}]`)
                 buyOrder['status'] = 'target_hit'
                 stock['buy_order'] = buyOrder;
                 tradesMap[tradingToken] = stock;
                 await updateBuyStatus(_id,'target_hit')
             }
             if(ltp <= buyOrder['sl']){
-                console.log(`[${date}] [${stock['trading_symbol']}] [SL HIT - BUY] [${buyOrder['sl']}] [${ltp}]`)
+                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${buyOrder['sl']}] [${ltp}]`)
                 buyOrder['status'] = 'sl_hit'
                 stock['buy_order'] = buyOrder;
                 tradesMap[tradingToken] = stock;
@@ -145,7 +145,7 @@ async function checkTradeData(){
             
 
         else if(sellPrice>=ltp && stock.sell_order['status'] != 'pending'){
-            console.log(`[${date}] [${stock['trading_symbol']}] [SELL] [${sellPrice}] [${ltp}]`)
+            console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SELL] [${sellPrice}] [${ltp}]`)
             stock.sell_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
             await updateSellStatus(_id,'order_executed')
@@ -155,14 +155,14 @@ async function checkTradeData(){
             const sellOrder = stock.sell_order;
 
             if(ltp<= sellOrder['target']){
-                console.log(`[${date}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${sellOrder['target']}] [${ltp}]`)
+                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${sellOrder['target']}] [${ltp}]`)
                 sellOrder['status'] = 'target_hit'
                 stock['buy_order'] = sellOrder;
                 tradesMap[tradingToken] = stock;
                 await updateSellStatus(_id,'target_hit')
             }
             if(ltp >= sellOrder['sl']){
-                console.log(`[${date}] [${stock['trading_symbol']}] [SL HIT - BUY] [${sellOrder['sl']}] [${ltp}]`)
+                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${sellOrder['sl']}] [${ltp}]`)
                 sellOrder['status'] = 'sl_hit'
                 stock['buy_order'] = sellOrder;
                 tradesMap[tradingToken] = stock;
