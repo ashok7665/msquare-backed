@@ -22,12 +22,12 @@ const connectionCallback = ()=>{
         clearInterval(connectionCallback)
         startTickWebsocket()
     }
-       
 }
+
+
 function checkConnection(){
     setInterval(connectionCallback,15000)
 }
-
 
 
 async function initScrips(){
@@ -38,16 +38,13 @@ async function initScrips(){
         tradesMap[m['symbol_token']] = m;
         scriptsList.push(m['symbol_token'])
     })
-
-    console.log('SELECTED STOCKS ')
-    console.log(tradesList)
-    console.log('SELECTED STOCK LOG END HERE')
+  
 }
 
 
 
 function scriptsStr(){
-    console.log(scriptsList)
+   
     var str = "";
     var divider = ""
     scriptsList.forEach(element => {
@@ -59,6 +56,7 @@ function scriptsStr(){
 
 
 const startTickWebsocket = async ()=>{
+    
     const time = new Date()
     console.log('\nstart ---> ',time.toString(), '<----------')
     if(webSocket) webSocket.close()
@@ -92,14 +90,13 @@ function receiveTick(data) {
     lastSync = 5;
 
 
-    console.log('TICK \n', data)
+    //console.log('TICK \n', data)
     for(element of data){
         if(!element['tk'] || !element['ltp'])
             continue
         map[element['tk']] = element['ltp']
     }
     
-    console.log('MAP', map)
 
     emitData(map)
     checkTradeData()
@@ -107,14 +104,15 @@ function receiveTick(data) {
 
 async function checkTradeData(){
 
+
     for(tradingToken of Object.keys(map)){
         const stock = tradesMap[tradingToken]
-        
         const ltp = Number.parseFloat(map[tradingToken])
         const buyPrice = Number.parseFloat(stock.buy_order['buy_price'])
         const sellPrice = Number.parseFloat(stock.sell_order['sell_price'])
         const _id = stock['_id']
 
+       
         if(buyPrice<=ltp && stock.buy_order['status'] == 'pending'){
             console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
             stock.buy_order['status'] = 'order_executed';
@@ -126,10 +124,13 @@ async function checkTradeData(){
                     type:'BUY',
                     target:stock.buy_order['target'],
                     stoploss:stock.buy_order['sl'],
-                    quantity:1
+                    quantity:1,
+                    triggerprice:ltp+1
                 }
             )
+
             await updateBuyStatus(_id,'order_executed')
+        
         }
 
         else if(stock.buy_order['status'] == 'order_executed'){
@@ -150,7 +151,6 @@ async function checkTradeData(){
                 tradesMap[tradingToken] = stock;
                 await updateBuyStatus(_id,'sl_hit')
             }
-
         }
             
 
@@ -165,7 +165,8 @@ async function checkTradeData(){
                     type:'SELL',
                     target:stock.sell_order['target'],
                     stoploss:stock.sell_order['sl'],
-                    quantity:1
+                    quantity:1,
+                    triggerprice:ltp-1
                 }
             )
 
@@ -190,8 +191,8 @@ async function checkTradeData(){
                 
                 await updateSellStatus(_id,'sl_hit')
             }
-
         }
+
 
     }
 }
@@ -207,23 +208,25 @@ module.exports.closeWebSocket = ()=>{
     clearInterval(connectionCallback)
 }
 
-async function makeOrder(){
-    console.log('placing order')
-    try{
-        const response = await placeOrder({
-            symbol:"ABBOTINDIA-EQ",
-            token:'17903',
-            type:'BUY',
-            target:'17829.1',
-            stoploss:'17614.45',
-            quantity:1
-        })
-
-        console.log(response)
-    }catch(e){
-        console.error(e)
-    }
-   
-}
 
 module.exports.startTickWebsocket = startTickWebsocket;
+
+
+
+async function makeOrder (){
+    console.log('makeOrder')
+    const response = await placeOrder(
+        {
+            symbol:'AMARAJABAT-EQ',
+            token:100,
+            type:'BUY',
+            target:571.70,
+            stoploss:571.15,
+            quantity:1,
+            triggerprice:571.30
+        }
+    )
+
+    console.log(response)
+}
+

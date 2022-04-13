@@ -23,19 +23,25 @@ module.exports.webSocketInstance = async ()=>{
 
 //       //     "price":"194.50",
 module.exports.placeOrder  = async (params) =>{
+
+    const order = {
+        "variety":"ROBO",
+        "tradingsymbol":params['symbol'],
+        "symboltoken":params['token'],
+        "transactiontype":params['type'],
+        "exchange":"NSE",
+        "ordertype":"STOPLOSS_MARKET",
+        "producttype":"INTRADAY",
+        "duration":"DAY",
+        "triggerprice":params['triggerprice'],
+        "squareoff":params['target'],
+        "stoploss":params['stoploss'],
+        "quantity":params['quantity']
+        }
    return  await smartApi.placeOrder(
-        {
-            "variety":"ROBO",
-            "tradingsymbol":params['symbol'],
-            "symboltoken":params['token'],
-            "transactiontype":params['type'],
-            "exchange":"NSE",
-            "ordertype":"MARKET",
-            "producttype":"BO",
-            "duration":"DAY",
-            "squareoff":params['target'], //target 
-            "stoploss":params['stoploss'],
-            "quantity":params['quantity']
-            }
+       order
     )
 }
+
+
+
