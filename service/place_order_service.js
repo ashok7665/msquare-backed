@@ -45,7 +45,6 @@ const placeOrders = async()=>{
         })
     }
 
-    console.log(sellResponse)
 }
 
 module.exports.placeOrders= placeOrders;
