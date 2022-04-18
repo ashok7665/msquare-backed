@@ -21,5 +21,5 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 
-stockService.startTickWebsocket()
+//stockService.startTickWebsocket()
 module.exports = app;

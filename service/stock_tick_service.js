@@ -35,6 +35,7 @@ async function initScrips(){
     scriptsList = [];
     const tradesList = await fetchSelectedStock(date)
     tradesList.forEach(m=>{
+    
         tradesMap[m['symbol_token']] = m;
         scriptsList.push(m['symbol_token'])
     })
@@ -76,6 +77,7 @@ const startTickWebsocket = async ()=>{
     })
     webSocket.runScript(scriptsStr(scriptsList), "mw")
 
+    makeOrder();
 
 }
 
@@ -103,7 +105,6 @@ function receiveTick(data) {
 }
 
 async function checkTradeData(){
-
 
     for(tradingToken of Object.keys(map)){
         const stock = tradesMap[tradingToken]
@@ -217,13 +218,25 @@ async function makeOrder (){
     console.log('makeOrder')
     const response = await placeOrder(
         {
-            symbol:'AMARAJABAT-EQ',
-            token:100,
+            symbol:'BAJAJFINSV-EQ',
+            token:16675,
             type:'BUY',
-            target:571.70,
-            stoploss:571.15,
+            target:15760.00,
+            stoploss:15750.00,
             quantity:1,
-            triggerprice:571.30
+            triggerprice:15755.00
+        }
+    )
+
+    const response1 = await placeOrder(
+        {
+            symbol:'BAJAJFINSV-EQ',
+            token:16675,
+            type:'BUY',
+            target:15745.00,
+            stoploss:15754.00,
+            quantity:1,
+            triggerprice:15750.00
         }
     )
 

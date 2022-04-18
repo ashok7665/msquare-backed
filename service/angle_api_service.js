@@ -4,6 +4,9 @@ let smartApi = new SmartAPI({
     api_key: "TWOFZgdZ",
 });
 
+
+
+
 async function login(){
    return await smartApi.generateSession("P246447", "Pljangir34@")
 }
@@ -43,5 +46,4 @@ module.exports.placeOrder  = async (params) =>{
     )
 }
 
-
-
+module.exports.login = login;
