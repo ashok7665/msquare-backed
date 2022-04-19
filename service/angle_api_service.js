@@ -39,11 +39,14 @@ module.exports.placeOrder  = async (params) =>{
         "triggerprice":params['triggerprice'],
         "squareoff":params['target'],
         "stoploss":params['stoploss'],
-        "quantity":params['quantity']
+        "quantity":params['quantity'],
         }
-   return  await smartApi.placeOrder(
-       order
-    )
+
+        console.log(order);
+
+//    return  await smartApi.placeOrder(
+//        order
+//     )
 }
 
 module.exports.login = login;

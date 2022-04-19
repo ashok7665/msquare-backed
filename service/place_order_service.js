@@ -13,13 +13,14 @@ const placeOrders = async()=>{
     scriptsList = [];
     const tradesList = await fetchSelectedStock(date)
 
-    const session = login()
+    const session = await login()
     for(stock of tradesList){
         await timer(500)
         console.log(stock)
 
         var symbolToken = stock['symbol_token']
         var tradingSymbol = stock['trading_symbol']
+        console.log(tradingSymbol,symbolToken)
         var buyOrder = stock['buy_order']
         var sellOrder = stock['sell_order']
 
@@ -27,8 +28,8 @@ const placeOrders = async()=>{
                     symbol:tradingSymbol,
                     token:symbolToken,
                     type:'BUY',
-                    target:buyOrder['target'],
-                    stoploss:buyOrder['sl'],
+                    target:(buyOrder['target'] -buyOrder['buy_price']).toFixed(2),
+                    stoploss: (buyOrder['buy_price'] - buyOrder['sl']).toFixed(2),
                     quantity:1,
                     triggerprice:buyOrder['buy_price']
         })
@@ -38,8 +39,8 @@ const placeOrders = async()=>{
             symbol:tradingSymbol,
             token:symbolToken,
             type:'SELL',
-            target:sellOrder['target'],
-            stoploss:sellOrder['sl'],
+            target:(sellOrder['sell_price'] - sellOrder['target']).toFixed(2) ,
+            stoploss: (sellOrder['sl'] - sellOrder['sell_price']).toFixed(2),
             quantity:1,
             triggerprice:sellOrder['sell_price']
         })
@@ -47,4 +48,6 @@ const placeOrders = async()=>{
 
 }
 
+
+placeOrders()
 module.exports.placeOrders= placeOrders;
