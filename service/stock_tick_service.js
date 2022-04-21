@@ -100,6 +100,7 @@ function receiveTick(data) {
     }
     
 
+    console.log(map)
     emitData(map)
     checkTradeData()
 }
