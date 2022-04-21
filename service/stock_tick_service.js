@@ -118,17 +118,18 @@ async function checkTradeData(){
             console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
             stock.buy_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
-            await placeOrder(
-                {
-                    symbol:stock['trading_symbol'],
-                    token:stock['symbol_token'],
-                    type:'BUY',
-                    target:stock.buy_order['target'],
-                    stoploss:stock.buy_order['sl'],
-                    quantity:1,
-                    triggerprice:ltp+1
-                }
-            )
+            
+            // await placeOrder(
+            //     {
+            //         symbol:stock['trading_symbol'],
+            //         token:stock['symbol_token'],
+            //         type:'BUY',
+            //         target:stock.buy_order['target'],
+            //         stoploss:stock.buy_order['sl'],
+            //         quantity:1,
+            //         triggerprice:ltp+1
+            //     }
+            // )
 
             await updateBuyStatus(_id,'order_executed')
         
@@ -155,21 +156,21 @@ async function checkTradeData(){
         }
             
 
-        else if(sellPrice>=ltp && stock.sell_order['status'] != 'pending'){
+        else if(sellPrice>=ltp && stock.sell_order['status'] == 'pending'){
             console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SELL] [${sellPrice}] [${ltp}]`)
             stock.sell_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
-            await placeOrder(
-                {
-                    symbol:stock['trading_symbol'],
-                    token:stock['symbol_token'],
-                    type:'SELL',
-                    target:stock.sell_order['target'],
-                    stoploss:stock.sell_order['sl'],
-                    quantity:1,
-                    triggerprice:ltp-1
-                }
-            )
+            // await placeOrder(
+            //     {
+            //         symbol:stock['trading_symbol'],
+            //         token:stock['symbol_token'],
+            //         type:'SELL',
+            //         target:stock.sell_order['target'],
+            //         stoploss:stock.sell_order['sl'],
+            //         quantity:1,
+            //         triggerprice:ltp-1
+            //     }
+            // )
 
             await updateSellStatus(_id,'order_executed')
         }
@@ -193,8 +194,6 @@ async function checkTradeData(){
                 await updateSellStatus(_id,'sl_hit')
             }
         }
-
-
     }
 }
 
