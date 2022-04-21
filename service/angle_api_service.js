@@ -44,9 +44,9 @@ module.exports.placeOrder  = async (params) =>{
 
         console.log(order);
 
-//    return  await smartApi.placeOrder(
-//        order
-//     )
+   return  await smartApi.placeOrder(
+       order
+    )
 }
 
 module.exports.login = login;

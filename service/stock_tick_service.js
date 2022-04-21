@@ -77,7 +77,7 @@ const startTickWebsocket = async ()=>{
     })
     webSocket.runScript(scriptsStr(scriptsList), "mw")
 
-    makeOrder();
+    //makeOrder();
 
 }
 

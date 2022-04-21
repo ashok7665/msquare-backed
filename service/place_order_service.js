@@ -33,6 +33,7 @@ const placeOrders = async()=>{
                     quantity:1,
                     triggerprice:buyOrder['buy_price']
         })
+        console.log(response)
 
 
         const sellResponse  = await placeOrder({
@@ -49,5 +50,6 @@ const placeOrders = async()=>{
 }
 
 
-placeOrders()
+
+
 module.exports.placeOrders= placeOrders;

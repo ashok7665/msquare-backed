@@ -1,7 +1,7 @@
 var cron = require('node-cron');
 const {startTickWebsocket,closeWebSocket,}  =require('./service/stock_tick_service')
 const {placeOrders} = require('./service/place_order_service')
-cron.schedule('00 47 09 * * 1-5', () => {
+cron.schedule('00 46 09 * * 1-5', () => {
     placeOrders()
    // startTickWebsocket()
 });
