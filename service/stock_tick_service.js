@@ -99,8 +99,7 @@ function receiveTick(data) {
         map[element['tk']] = element['ltp']
     }
     
-
-    console.log(map)
+    
     emitData(map)
     checkTradeData()
 }
