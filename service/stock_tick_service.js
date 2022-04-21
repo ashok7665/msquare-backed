@@ -89,7 +89,7 @@ function receiveTick(data) {
         return
     }
 
-    lastSync = 5;
+    lastSync = 3;
 
 
     //console.log('TICK \n', data)
@@ -118,7 +118,7 @@ async function checkTradeData(){
             console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
             stock.buy_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
-            
+
             // await placeOrder(
             //     {
             //         symbol:stock['trading_symbol'],
