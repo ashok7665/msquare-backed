@@ -34,6 +34,7 @@ async function initScrips(){
     var date = moment().format('YYYY-MM-DD');
     scriptsList = [];
     const tradesList = await fetchSelectedStock(date)
+    console.log(tradesList)
     tradesList.forEach(m=>{
     
         tradesMap[m['symbol_token']] = m;
@@ -57,7 +58,8 @@ function scriptsStr(){
 
 
 const startTickWebsocket = async ()=>{
-    
+
+
     const time = new Date()
     console.log('\nstart ---> ',time.toString(), '<----------')
     if(webSocket) webSocket.close()
@@ -89,7 +91,7 @@ function receiveTick(data) {
         return
     }
 
-    lastSync = 3;
+    lastSync = 2;
 
 
     //console.log('TICK \n', data)
@@ -119,18 +121,28 @@ async function checkTradeData(){
             stock.buy_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
 
-            // await placeOrder(
-            //     {
-            //         symbol:stock['trading_symbol'],
-            //         token:stock['symbol_token'],
-            //         type:'BUY',
-            //         target:stock.buy_order['target'],
-            //         stoploss:stock.buy_order['sl'],
-            //         quantity:1,
-            //         triggerprice:ltp+1
-            //     }
-            // )
+            const response = await placeOrder({
+                variety:'NORMAL',
+                symbol:stock['trading_symbol'],
+                token:stock['symbol_token'],
+                ordertype:'MARKET',
+                type:'BUY',
+                quantity:1,
+            })
 
+            console.log(response)
+
+            const sl_response = await placeOrder({
+                variety:'STOPLOSS',
+                symbol:stock['trading_symbol'],
+                token:stock['symbol_token'],
+                ordertype:'STOPLOSS_MARKET',
+                type:'SELL',
+                quantity:1,
+                triggerprice:stock.buy_order['sl']
+            })
+
+            console.log(sl_response)
             await updateBuyStatus(_id,'order_executed')
         
         }
@@ -139,7 +151,16 @@ async function checkTradeData(){
             const buyOrder = stock.buy_order;
 
             if(ltp>= buyOrder['target']){
-                
+            
+                const response = await placeOrder({
+                    variety:'NORMAL',
+                    symbol:stock['trading_symbol'],
+                    token:stock['symbol_token'],
+                    ordertype:'MARKET',
+                    type:'SELL',
+                    quantity:1,
+                })
+
                 console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${buyOrder['target']}] [${ltp}]`)
                 buyOrder['status'] = 'target_hit'
                 stock['buy_order'] = buyOrder;
@@ -160,17 +181,27 @@ async function checkTradeData(){
             console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SELL] [${sellPrice}] [${ltp}]`)
             stock.sell_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
-            // await placeOrder(
-            //     {
-            //         symbol:stock['trading_symbol'],
-            //         token:stock['symbol_token'],
-            //         type:'SELL',
-            //         target:stock.sell_order['target'],
-            //         stoploss:stock.sell_order['sl'],
-            //         quantity:1,
-            //         triggerprice:ltp-1
-            //     }
-            // )
+
+            const response = await placeOrder({
+                variety:'NORMAL',
+                symbol:stock['trading_symbol'],
+                token:stock['symbol_token'],
+                ordertype:'MARKET',
+                type:'SELL',
+                quantity:1,
+            })
+
+            console.log(response)
+
+            const sl_response = await placeOrder({
+                variety:'STOPLOSS',
+                symbol:stock['trading_symbol'],
+                token:stock['symbol_token'],
+                ordertype:'STOPLOSS_MARKET',
+                type:'BUY',
+                quantity:1,
+                triggerprice:stock.sell_order['sl']
+            })
 
             await updateSellStatus(_id,'order_executed')
         }
@@ -181,14 +212,26 @@ async function checkTradeData(){
             if(ltp<= sellOrder['target']){
                 console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${sellOrder['target']}] [${ltp}]`)
                 sellOrder['status'] = 'target_hit'
-                stock['buy_order'] = sellOrder;
+                stock['sell_order'] = sellOrder;
                 tradesMap[tradingToken] = stock;
+
+                const response = await placeOrder({
+                    variety:'NORMAL',
+                    symbol:stock['trading_symbol'],
+                    token:stock['symbol_token'],
+                    ordertype:'MARKET',
+                    type:'BUY',
+                    quantity:1,
+                })
+
+
+
                 await updateSellStatus(_id,'target_hit')
             }
             if(ltp >= sellOrder['sl']){
                 console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${sellOrder['sl']}] [${ltp}]`)
                 sellOrder['status'] = 'sl_hit'
-                stock['buy_order'] = sellOrder;
+                stock['sell_order'] = sellOrder;
                 tradesMap[tradingToken] = stock;
                 
                 await updateSellStatus(_id,'sl_hit')
@@ -214,31 +257,30 @@ module.exports.startTickWebsocket = startTickWebsocket;
 
 
 async function makeOrder (){
-    console.log('makeOrder')
-    const response = await placeOrder(
-        {
-            symbol:'BAJAJFINSV-EQ',
-            token:16675,
-            type:'BUY',
-            target:15760.00,
-            stoploss:15750.00,
-            quantity:1,
-            triggerprice:15755.00
-        }
-    )
+    
+    // const response = await placeOrder({
+    //     variety:'NORMAL',
+    //     symbol:'ACC-EQ',
+    //     token:22,
+    //     ordertype:'MARKET',
+    //     type:'BUY',
+    //     quantity:1,
+    // })
+
+    // console.log(response)
+    
 
     const response1 = await placeOrder(
-        {
-            symbol:'BAJAJFINSV-EQ',
-            token:16675,
-            type:'BUY',
-            target:15745.00,
-            stoploss:15754.00,
+        {   variety:'STOPLOSS',
+            symbol:'ACC-EQ',
+            token:22,
+            type:'SELL',
             quantity:1,
-            triggerprice:15750.00
+            ordertype:'STOPLOSS_MARKET',
+            triggerprice:2250.00
         }
     )
 
-    console.log(response)
+    console.log(response1)
 }
 

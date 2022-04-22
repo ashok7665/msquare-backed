@@ -28,17 +28,15 @@ module.exports.webSocketInstance = async ()=>{
 module.exports.placeOrder  = async (params) =>{
 
     const order = {
-        "variety":"ROBO",
+        "variety":params['variety'], //NORMAL, STOPLOSS
         "tradingsymbol":params['symbol'],
         "symboltoken":params['token'],
         "transactiontype":params['type'],
         "exchange":"NSE",
-        "ordertype":"STOPLOSS_MARKET",
+        "ordertype":params['ordertype'],
         "producttype":"INTRADAY",
         "duration":"DAY",
         "triggerprice":params['triggerprice'],
-        "squareoff":params['target'],
-        "stoploss":params['stoploss'],
         "quantity":params['quantity'],
         }
 

@@ -24,15 +24,15 @@ const placeOrders = async()=>{
         var buyOrder = stock['buy_order']
         var sellOrder = stock['sell_order']
 
-        const response = await placeOrder({
-                    symbol:tradingSymbol,
-                    token:symbolToken,
-                    type:'BUY',
-                    target:(buyOrder['target'] -buyOrder['buy_price']).toFixed(2),
-                    stoploss: (buyOrder['buy_price'] - buyOrder['sl']).toFixed(2),
-                    quantity:1,
-                    triggerprice:buyOrder['buy_price']
-        })
+        // const response = await placeOrder({
+        //             symbol:tradingSymbol,
+        //             token:symbolToken,
+        //             type:'BUY',
+        //             target:(buyOrder['target'] -buyOrder['buy_price']).toFixed(2),
+        //             stoploss: (buyOrder['buy_price'] - buyOrder['sl']).toFixed(2),
+        //             quantity:1,
+        //             triggerprice:buyOrder['buy_price']
+        // })
         console.log(response)
 
 
