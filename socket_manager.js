@@ -15,11 +15,11 @@ module.exports.fetcClient = ()=>{
 module.exports.emitData = (data)=>{
     //console.log('emitting')
     if(client){
-        console.log('emitting...')
+        //console.log('emitting...')
         var emited = client.send(JSON.stringify(data))
         console.log(emited)
     }else {
-        console.log('client not connected')
+       // console.log('client not connected')
     }
 }
 
