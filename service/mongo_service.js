@@ -11,6 +11,13 @@ module.exports.fetchSelectedStock = async(date)=>{
     return tradesList;
 }
 
+
+module.exports.clearCPRData = async(date)=>{
+    const tradesList = await tradesModel.deleteMany({date:date})
+    return tradesList;
+}
+
+
 module.exports.updateBuyStatus = async(_id, status)=>{
     await tradesModel.updateOne({_id:_id},{
         "status":'order_trigged',

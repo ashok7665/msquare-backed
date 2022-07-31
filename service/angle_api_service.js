@@ -1,14 +1,14 @@
 let { SmartAPI, WebSocket } = require("smartapi-javascript");
 
 let smartApi = new SmartAPI({
-    api_key: "TWOFZgdZ",
+    api_key: "ilgUlOtU",
 });
 
 
 
 
 async function login(){
-   return await smartApi.generateSession("P246447", "Pljangir34@")
+   return await smartApi.generateSession("P246447", "Jangir76@")
 }
 
 module.exports.webSocketInstance = async ()=>{
@@ -40,11 +40,11 @@ module.exports.placeOrder  = async (params) =>{
         "quantity":params['quantity'],
         }
 
-        console.log(order);
+     //   console.log(order);
 
-   return  await smartApi.placeOrder(
-       order
-    )
+//    return  await smartApi.placeOrder(
+//        order
+//     )
 }
 
 module.exports.login = login;

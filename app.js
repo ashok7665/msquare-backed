@@ -2,6 +2,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const witsenLogger = require('./service/logger').logger;
+
+
+
+
+
+// witsenLogger(`logs/${day}_${month}_${'1bc'}`).info('Hello')
+// witsenLogger(`logs/${day}_${month}_${'aaa'}`).info('Hello')
+
+
 require('dotenv').config()
 const connection = require('./db/index')
 var indexRouter = require('./routes/index');
@@ -19,7 +29,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
 
 stockService.startTickWebsocket()
 module.exports = app;

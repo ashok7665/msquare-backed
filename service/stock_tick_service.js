@@ -1,8 +1,9 @@
 const tradesModel = require('../db/trades')
 const moment = require('moment')
 const {fetcClient,emitData} = require('../socket_manager')
-const {fetchSelectedStock,updateSellStatus,updateBuyStatus} =require('./mongo_service')
+const {fetchSelectedStock,updateSellStatus,updateBuyStatus,clearCPRData} =require('./mongo_service')
 const {webSocketInstance,placeOrder} = require('./angle_api_service')
+const witsenLogger = require('./logger').logger;
 
 let webSocket = undefined;
 var tradesMap = {}
@@ -14,11 +15,12 @@ var webSocketRunning  = false;
 
 
 const connectionCallback = ()=>{
-    console.log('checking connection')
+    //console.log('checking connection')
     var nowtime = new Date().getTime();
     console.log(webSocketRunning, lastTickTime,nowtime - lastTickTime)
     if(webSocketRunning && lastTickTime && nowtime - lastTickTime > 10000){
-        console.log('connection was clonsed! Starting again')
+        witsenLogger('connection').info('connection was clonsed! Starting again')
+        //console.log('connection was clonsed! Starting again')
         clearInterval(connectionCallback)
         startTickWebsocket()
     }
@@ -33,13 +35,14 @@ function checkConnection(){
 async function initScrips(){
     var date = moment().format('YYYY-MM-DD');
     scriptsList = [];
-    const tradesList = await fetchSelectedStock(date)
-    console.log(tradesList)
-    tradesList.forEach(m=>{
+    await clearCPRData(date)
+    // const tradesList = await fetchSelectedStock(date)
+    // console.log(tradesList)
+    // tradesList.forEach(m=>{
     
-        tradesMap[m['symbol_token']] = m;
-        scriptsList.push(m['symbol_token'])
-    })
+    //     tradesMap[m['symbol_token']] = m;
+    //     scriptsList.push(m['symbol_token'])
+    // })
   
 }
 
@@ -70,9 +73,11 @@ const startTickWebsocket = async ()=>{
     webSocket = await webSocketInstance()
     await webSocket.connect();
    
+    witsenLogger('connection').info('connected to websocket')
     console.log('connected to websocket')
     webSocket.on('tick', receiveTick)
     webSocket.on('error', (e)=>{
+        witsenLogger('connection').info('Connect error')
         console.log('websocet connection error start ---->')
         console.log(e)
         console.log('websocet connection error end ---->')
@@ -109,40 +114,47 @@ function receiveTick(data) {
 async function checkTradeData(){
 
     for(tradingToken of Object.keys(map)){
+
+        
         const stock = tradesMap[tradingToken]
         const ltp = Number.parseFloat(map[tradingToken])
         const buyPrice = Number.parseFloat(stock.buy_order['buy_price'])
         const sellPrice = Number.parseFloat(stock.sell_order['sell_price'])
         const _id = stock['_id']
 
+        var logger = witsenLogger(stock['trading_symbol'])
+        logger.info(ltp)
+
+
        
         if(buyPrice<=ltp && stock.buy_order['status'] == 'pending'){
-            console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
+            logger.info(`[BUY] [${buyPrice}] [${ltp}]`)
+            //console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [BUY] [${buyPrice}] [${ltp}]`)
             stock.buy_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
 
-            const response = await placeOrder({
-                variety:'NORMAL',
-                symbol:stock['trading_symbol'],
-                token:stock['symbol_token'],
-                ordertype:'MARKET',
-                type:'BUY',
-                quantity:1,
-            })
+            // const response = await placeOrder({
+            //     variety:'NORMAL',
+            //     symbol:stock['trading_symbol'],
+            //     token:stock['symbol_token'],
+            //     ordertype:'MARKET',
+            //     type:'BUY',
+            //     quantity:1,
+            // })
 
-            console.log(response)
+            // console.log(response)
 
-            const sl_response = await placeOrder({
-                variety:'STOPLOSS',
-                symbol:stock['trading_symbol'],
-                token:stock['symbol_token'],
-                ordertype:'STOPLOSS_MARKET',
-                type:'SELL',
-                quantity:1,
-                triggerprice:stock.buy_order['sl']
-            })
+            // const sl_response = await placeOrder({
+            //     variety:'STOPLOSS',
+            //     symbol:stock['trading_symbol'],
+            //     token:stock['symbol_token'],
+            //     ordertype:'STOPLOSS_MARKET',
+            //     type:'SELL',
+            //     quantity:1,
+            //     triggerprice:stock.buy_order['sl']
+            // })
 
-            console.log(sl_response)
+           // console.log(sl_response)
             await updateBuyStatus(_id,'order_executed')
         
         }
@@ -151,24 +163,26 @@ async function checkTradeData(){
             const buyOrder = stock.buy_order;
 
             if(ltp>= buyOrder['target']){
-            
-                const response = await placeOrder({
-                    variety:'NORMAL',
-                    symbol:stock['trading_symbol'],
-                    token:stock['symbol_token'],
-                    ordertype:'MARKET',
-                    type:'SELL',
-                    quantity:1,
-                })
+                logger.info(`[TARGET HIT - BUY] [${buyOrder['target']}] [${ltp}]`)
 
-                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${buyOrder['target']}] [${ltp}]`)
+                // const response = await placeOrder({
+                //     variety:'NORMAL',
+                //     symbol:stock['trading_symbol'],
+                //     token:stock['symbol_token'],
+                //     ordertype:'MARKET',
+                //     type:'SELL',
+                //     quantity:1,
+                // })
+
+                //console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${buyOrder['target']}] [${ltp}]`)
                 buyOrder['status'] = 'target_hit'
                 stock['buy_order'] = buyOrder;
                 tradesMap[tradingToken] = stock;
                 await updateBuyStatus(_id,'target_hit')
             }
             if(ltp <= buyOrder['sl']){
-                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${buyOrder['sl']}] [${ltp}]`)
+                logger.info(`[SL HIT - BUY] [${buyOrder['sl']}] [${ltp}]`)
+                //console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${buyOrder['sl']}] [${ltp}]`)
                 buyOrder['status'] = 'sl_hit'
                 stock['buy_order'] = buyOrder;
                 tradesMap[tradingToken] = stock;
@@ -178,30 +192,34 @@ async function checkTradeData(){
             
 
         else if(sellPrice>=ltp && stock.sell_order['status'] == 'pending'){
-            console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SELL] [${sellPrice}] [${ltp}]`)
+
+            logger.info(`[SELL] [${sellPrice}] [${ltp}]`)
+
+
+           // console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SELL] [${sellPrice}] [${ltp}]`)
             stock.sell_order['status'] = 'order_executed';
             tradesMap[tradingToken] = stock;
 
-            const response = await placeOrder({
-                variety:'NORMAL',
-                symbol:stock['trading_symbol'],
-                token:stock['symbol_token'],
-                ordertype:'MARKET',
-                type:'SELL',
-                quantity:1,
-            })
+            // const response = await placeOrder({
+            //     variety:'NORMAL',
+            //     symbol:stock['trading_symbol'],
+            //     token:stock['symbol_token'],
+            //     ordertype:'MARKET',
+            //     type:'SELL',
+            //     quantity:1,
+            // })
 
-            console.log(response)
+           // console.log(response)
 
-            const sl_response = await placeOrder({
-                variety:'STOPLOSS',
-                symbol:stock['trading_symbol'],
-                token:stock['symbol_token'],
-                ordertype:'STOPLOSS_MARKET',
-                type:'BUY',
-                quantity:1,
-                triggerprice:stock.sell_order['sl']
-            })
+            // const sl_response = await placeOrder({
+            //     variety:'STOPLOSS',
+            //     symbol:stock['trading_symbol'],
+            //     token:stock['symbol_token'],
+            //     ordertype:'STOPLOSS_MARKET',
+            //     type:'BUY',
+            //     quantity:1,
+            //     triggerprice:stock.sell_order['sl']
+            // })
 
             await updateSellStatus(_id,'order_executed')
         }
@@ -210,26 +228,31 @@ async function checkTradeData(){
             const sellOrder = stock.sell_order;
 
             if(ltp<= sellOrder['target']){
-                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${sellOrder['target']}] [${ltp}]`)
+
+                logger.info(`[TARGET HIT - SELL] [${sellOrder['target']}] [${ltp}]`)
+
+
+               // console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [TARGET HIT - BUY] [${sellOrder['target']}] [${ltp}]`)
                 sellOrder['status'] = 'target_hit'
                 stock['sell_order'] = sellOrder;
                 tradesMap[tradingToken] = stock;
 
-                const response = await placeOrder({
-                    variety:'NORMAL',
-                    symbol:stock['trading_symbol'],
-                    token:stock['symbol_token'],
-                    ordertype:'MARKET',
-                    type:'BUY',
-                    quantity:1,
-                })
+                // const response = await placeOrder({
+                //     variety:'NORMAL',
+                //     symbol:stock['trading_symbol'],
+                //     token:stock['symbol_token'],
+                //     ordertype:'MARKET',
+                //     type:'BUY',
+                //     quantity:1,
+                // })
 
 
 
                 await updateSellStatus(_id,'target_hit')
             }
             if(ltp >= sellOrder['sl']){
-                console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${sellOrder['sl']}] [${ltp}]`)
+                logger.info(`[SL HIT - SELL] [${sellOrder['sl']}] [${ltp}]`)
+                //console.log(`[${new Date().toLocaleDateString()}] [${stock['trading_symbol']}] [SL HIT - BUY] [${sellOrder['sl']}] [${ltp}]`)
                 sellOrder['status'] = 'sl_hit'
                 stock['sell_order'] = sellOrder;
                 tradesMap[tradingToken] = stock;
@@ -270,17 +293,17 @@ async function makeOrder (){
     // console.log(response)
     
 
-    const response1 = await placeOrder(
-        {   variety:'STOPLOSS',
-            symbol:'ACC-EQ',
-            token:22,
-            type:'SELL',
-            quantity:1,
-            ordertype:'STOPLOSS_MARKET',
-            triggerprice:2250.00
-        }
-    )
+    // const response1 = await placeOrder(
+    //     {   variety:'STOPLOSS',
+    //         symbol:'ACC-EQ',
+    //         token:22,
+    //         type:'SELL',
+    //         quantity:1,
+    //         ordertype:'STOPLOSS_MARKET',
+    //         triggerprice:2250.00
+    //     }
+    // )
 
-    console.log(response1)
+    // console.log(response1)
 }
 

@@ -6,6 +6,8 @@ const {webSocketInstance,placeOrder,login} = require('./angle_api_service')
 const { response } = require('../app')
 
 const timer = ms => new Promise(res => setTimeout(res, ms))
+const witsenLogger = require('./logger').logger;
+
 
 const placeOrders = async()=>{
 
@@ -16,14 +18,17 @@ const placeOrders = async()=>{
     const session = await login()
     for(stock of tradesList){
         await timer(500)
-        console.log(stock)
+        //console.log(stock)
 
         var symbolToken = stock['symbol_token']
         var tradingSymbol = stock['trading_symbol']
-        console.log(tradingSymbol,symbolToken)
+        //console.log(tradingSymbol,symbolToken)
         var buyOrder = stock['buy_order']
         var sellOrder = stock['sell_order']
 
+        
+      //  witsenLogger(tradingSymbol).info(buyOrder[''],buyOrder[''])
+        
         // const response = await placeOrder({
         //             symbol:tradingSymbol,
         //             token:symbolToken,
@@ -33,18 +38,20 @@ const placeOrders = async()=>{
         //             quantity:1,
         //             triggerprice:buyOrder['buy_price']
         // })
-        console.log(response)
+       // console.log(response)
 
 
-        const sellResponse  = await placeOrder({
-            symbol:tradingSymbol,
-            token:symbolToken,
-            type:'SELL',
-            target:(sellOrder['sell_price'] - sellOrder['target']).toFixed(2) ,
-            stoploss: (sellOrder['sl'] - sellOrder['sell_price']).toFixed(2),
-            quantity:1,
-            triggerprice:sellOrder['sell_price']
-        })
+        // const sellResponse  = await placeOrder({
+        //     symbol:tradingSymbol,
+        //     token:symbolToken,
+        //     type:'SELL',
+        //     target:(sellOrder['sell_price'] - sellOrder['target']).toFixed(2) ,
+        //     stoploss: (sellOrder['sl'] - sellOrder['sell_price']).toFixed(2),
+        //     quantity:1,
+        //     triggerprice:sellOrder['sell_price']
+        // })
+
+
     }
 
 }
