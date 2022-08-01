@@ -6,8 +6,10 @@ const moment = require('moment')
 var tradesMap = {}
 
 
+
+//"$or":[{status: 'order_selected'}, {status: 'order_trigged'}]
 module.exports.fetchSelectedStock = async(date)=>{
-    const tradesList = await tradesModel.find({"$or":[{status: 'order_selected'}, {status: 'order_trigged'}],date:date})
+    const tradesList = await tradesModel.find({date:date})
     return tradesList;
 }
 
