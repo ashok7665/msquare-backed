@@ -15,9 +15,8 @@ var webSocketRunning  = false;
 
 
 const connectionCallback = ()=>{
-    //console.log('checking connection')
+    
     var nowtime = new Date().getTime();
-    console.log(webSocketRunning, lastTickTime,nowtime - lastTickTime)
     if(webSocketRunning && lastTickTime && nowtime - lastTickTime > 10000){
         witsenLogger('connection').info('connection was clonsed! Starting again')
         //console.log('connection was clonsed! Starting again')
@@ -36,13 +35,13 @@ async function initScrips(){
     var date = moment().format('YYYY-MM-DD');
     scriptsList = [];
     await clearCPRData(date)
-    // const tradesList = await fetchSelectedStock(date)
+    const tradesList = await fetchSelectedStock(date)
     // console.log(tradesList)
-    // tradesList.forEach(m=>{
+    tradesList.forEach(m=>{
     
-    //     tradesMap[m['symbol_token']] = m;
-    //     scriptsList.push(m['symbol_token'])
-    // })
+        tradesMap[m['symbol_token']] = m;
+        scriptsList.push(m['symbol_token'])
+    })
   
 }
 
@@ -61,7 +60,6 @@ function scriptsStr(){
 
 
 const startTickWebsocket = async ()=>{
-
 
     const time = new Date()
     console.log('\nstart ---> ',time.toString(), '<----------')
